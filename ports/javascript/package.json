@@ -1,0 +1,10 @@
+{
+  "name": "@cognis/ssrfind",
+  "version": "0.2.0",
+  "description": "JavaScript port of ssrfind (Cognis Neural Suite)",
+  "bin": {
+    "ssrfind": "index.js"
+  },
+  "license": "LicenseRef-COCL-1.0",
+  "type": "module"
+}
