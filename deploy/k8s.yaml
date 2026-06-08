@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: ssrfind, labels: { app: ssrfind } }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: ssrfind } }
+  template:
+    metadata: { labels: { app: ssrfind } }
+    spec:
+      containers:
+        - name: ssrfind
+          image: ghcr.io/cognis-digital/ssrfind:latest
+          ports: [{ containerPort: 8000 }]
+          resources:
+            requests: { cpu: "50m", memory: "64Mi" }
+            limits: { cpu: "500m", memory: "256Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: ssrfind }
+spec:
+  selector: { app: ssrfind }
+  ports: [{ port: 80, targetPort: 8000 }]
