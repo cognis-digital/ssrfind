@@ -20,6 +20,12 @@ pip install "git+https://github.com/cognis-digital/ssrfind.git"
 ssrfind scan .            # → prioritized findings in seconds
 ```
 
+<!-- cognis:layman:start -->
+## What is this?
+
+ssrfind scans your code for places where an attacker could trick your application into making web requests to unintended destinations — a vulnerability known as Server-Side Request Forgery (SSRF). You point it at a file or folder, and it highlights the risky spots in seconds, ranked by how dangerous they are. It works on Python and JavaScript projects and fits into automated pipelines without any account or setup. Developers and security teams use it to catch SSRF holes before they reach production.
+<!-- cognis:layman:end -->
+
 ## Contents
 
 - [Why ssrfind?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
@@ -44,6 +50,42 @@ SSRF hotspots
 <div align="right"><a href="#top">↑ back to top</a></div>
 
 <a name="quick-start"></a>
+<!-- cognis:install:start -->
+## Install
+
+`ssrfind` is source-available (not published to PyPI) — every method below installs
+straight from GitHub. Pick whichever you prefer; the one-line scripts auto-detect
+the best tool available on your machine.
+
+**One-liner (Linux / macOS):**
+```sh
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/ssrfind/HEAD/install.sh | sh
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/cognis-digital/ssrfind/HEAD/install.ps1 | iex
+```
+
+**Or install manually — any one of:**
+```sh
+pipx install "git+https://github.com/cognis-digital/ssrfind.git"     # isolated (recommended)
+uv tool install "git+https://github.com/cognis-digital/ssrfind.git"  # uv
+pip install "git+https://github.com/cognis-digital/ssrfind.git"      # pip
+```
+
+**From source:**
+```sh
+git clone https://github.com/cognis-digital/ssrfind.git
+cd ssrfind && pip install .
+```
+
+Then run:
+```sh
+ssrfind --help
+```
+<!-- cognis:install:end -->
+
 ## Quick start
 
 ```bash
