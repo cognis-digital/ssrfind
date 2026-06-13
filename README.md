@@ -20,6 +20,31 @@ pip install cognis-ssrfind
 ssrfind scan .            # → prioritized findings in seconds
 ```
 
+## Usage — step by step
+
+1. **Install** the CLI (console script `ssrfind`):
+   ```bash
+   pip install cognis-ssrfind
+   ```
+2. **Scan source for SSRF sinks** — `scan` walks a file or directory tree for SSRF-prone sinks and unvalidated URL fetches:
+   ```bash
+   ssrfind scan ./src
+   ```
+3. **Tune severity / format** — only surface higher-confidence hits, or emit JSON:
+   ```bash
+   ssrfind scan ./src --min-severity high
+   ssrfind scan ./src --format json > ssrf.json
+   ```
+4. **Read the output** — each finding carries `severity`, `file:line`, the `rule_id`, the `sink`/`argument`, and explanatory notes; the JSON adds a `summary` count by severity. Exit `1` when findings exist, `0` when clean, `2` on a bad path:
+   ```bash
+   ssrfind scan ./src --format json | jq '.summary, (.findings[] | {rule_id, file, line})'
+   ```
+5. **Automate in CI** — fail the job when SSRF hotspots appear:
+   ```yaml
+   - run: pip install cognis-ssrfind
+   - run: ssrfind scan ./src --min-severity medium  # nonzero exit = findings
+   ```
+
 ## Contents
 
 - [Why ssrfind?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
