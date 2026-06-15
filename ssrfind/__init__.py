@@ -1,11 +1,13 @@
 """ssrfind — part of the Cognis Neural Suite."""
-try:  # re-export the tool's public API + identity from core
-    from ssrfind.core import *  # noqa: F401,F403
-except Exception:  # pragma: no cover
-    pass
-try:
-    from ssrfind.core import TOOL_NAME, TOOL_VERSION
-except Exception:  # pragma: no cover
-    TOOL_NAME = "ssrfind"
-    TOOL_VERSION = "0.1.0"
+from ssrfind.core import (  # noqa: F401
+    Finding,
+    Severity,
+    TOOL_NAME,
+    TOOL_VERSION,
+    scan_source,
+    scan_path,
+    scan,
+    to_json,
+)
+
 __version__ = TOOL_VERSION

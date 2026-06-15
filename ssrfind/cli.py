@@ -79,8 +79,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    if args.command != "scan":
-        parser.print_help()
+    if not getattr(args, "command", None) or args.command != "scan":
+        parser.print_help(sys.stderr)
         return 2
 
     try:
@@ -88,8 +88,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     except FileNotFoundError as exc:
         print(f"error: path not found: {exc}", file=sys.stderr)
         return 2
+    except ValueError as exc:
+        print(f"error: invalid argument: {exc}", file=sys.stderr)
+        return 2
     except OSError as exc:
         print(f"error: {exc}", file=sys.stderr)
+        return 2
+    except Exception as exc:  # noqa: BLE001
+        print(f"error: unexpected failure: {exc}", file=sys.stderr)
         return 2
 
     if args.format == "json":

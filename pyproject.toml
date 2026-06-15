@@ -32,3 +32,10 @@ ssrfind = "ssrfind.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["ssrfind"]
+
+[tool.ruff]
+line-length = 140
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501"]

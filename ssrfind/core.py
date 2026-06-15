@@ -14,11 +14,17 @@ string literal with no taint hint is downgraded, everything else is reported.
 """
 from __future__ import annotations
 
+import json
 import os
 import re
 from dataclasses import dataclass, asdict, field
 from enum import Enum
 from typing import Iterable, List, Optional
+
+TOOL_NAME = "ssrfind"
+TOOL_VERSION = "0.1.0"
+
+_VALID_SEVERITIES = {"low", "medium", "high"}
 
 
 class Severity(str, Enum):
@@ -123,8 +129,16 @@ def _classify(arg: str, lines: List[str], idx: int) -> tuple[Severity, bool, boo
 
 
 def scan_source(source: str, filename: str = "<source>") -> List[Finding]:
-    """Scan a single source string and return findings."""
+    """Scan a single source string and return findings.
+
+    Raises TypeError if *source* is not a string.
+    Returns an empty list for empty input.
+    """
+    if not isinstance(source, str):
+        raise TypeError(f"scan_source: source must be a str, got {type(source).__name__!r}")
     findings: List[Finding] = []
+    if not source:
+        return findings
     lines = source.splitlines()
     for idx, raw in enumerate(lines):
         line = raw
@@ -171,12 +185,20 @@ def _iter_files(path: str) -> Iterable[str]:
 def scan_path(path: str, min_severity: Optional[str] = None) -> List[Finding]:
     """Scan a file or directory tree and return findings.
 
-    Raises FileNotFoundError if the path does not exist.
+    Raises FileNotFoundError if *path* does not exist.
+    Raises ValueError if *min_severity* is not one of 'low', 'medium', 'high'.
     """
+    if not isinstance(path, str) or not path:
+        raise ValueError("scan_path: path must be a non-empty string")
     if not os.path.exists(path):
         raise FileNotFoundError(path)
+    severity_str = (min_severity or "low").lower()
+    if severity_str not in _VALID_SEVERITIES:
+        raise ValueError(
+            f"scan_path: min_severity must be one of {sorted(_VALID_SEVERITIES)!r}, got {min_severity!r}"
+        )
     order = {"low": 0, "medium": 1, "high": 2}
-    floor = order.get((min_severity or "low").lower(), 0)
+    floor = order[severity_str]
     out: List[Finding] = []
     for fp in _iter_files(path):
         try:
@@ -189,3 +211,29 @@ def scan_path(path: str, min_severity: Optional[str] = None) -> List[Finding]:
                 out.append(f)
     out.sort(key=lambda f: (-order[f.severity], f.file, f.line))
     return out
+
+
+# ---------------------------------------------------------------------------
+# Convenience aliases used by mcp_server and other consumers
+# ---------------------------------------------------------------------------
+
+def scan(target: str, min_severity: Optional[str] = None) -> List[Finding]:
+    """Alias for :func:`scan_path`."""
+    return scan_path(target, min_severity=min_severity)
+
+
+def to_json(findings: List[Finding], scanned: str = "") -> str:
+    """Serialise a list of *findings* to a JSON string."""
+    payload = {
+        "tool": TOOL_NAME,
+        "version": TOOL_VERSION,
+        "scanned": scanned,
+        "summary": {
+            "total": len(findings),
+            "high": sum(1 for f in findings if f.severity == "high"),
+            "medium": sum(1 for f in findings if f.severity == "medium"),
+            "low": sum(1 for f in findings if f.severity == "low"),
+        },
+        "findings": [f.to_dict() for f in findings],
+    }
+    return json.dumps(payload, indent=2)

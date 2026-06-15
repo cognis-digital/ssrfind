@@ -4,9 +4,11 @@ import os
 import subprocess
 import sys
 
+import pytest
+
 import ssrfind
 from ssrfind.cli import main
-from ssrfind.core import scan_source, scan_path
+from ssrfind.core import scan_source, scan_path, scan, to_json
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEMO = os.path.join(ROOT, "demos", "01-basic", "webhook_proxy.py")
@@ -107,3 +109,56 @@ def test_cli_subprocess_json_parses():
     data = json.loads(proc.stdout)
     assert data["tool"] == "ssrfind"
     assert data["summary"]["high"] >= 1
+
+
+# ---------------------------------------------------------------------------
+# Hardening tests: edge cases and error paths
+# ---------------------------------------------------------------------------
+
+
+def test_scan_source_empty_returns_no_findings():
+    """Empty source string must return an empty list, not raise."""
+    assert scan_source("") == []
+
+
+def test_scan_source_comment_only_returns_no_findings():
+    """Lines that are pure comments must not produce findings."""
+    src = "# requests.get(user_url)\n// fetch(req.query.url)\n"
+    assert scan_source(src, "commented.py") == []
+
+
+def test_scan_source_wrong_type_raises():
+    """Passing a non-string to scan_source must raise TypeError."""
+    with pytest.raises(TypeError):
+        scan_source(None)  # type: ignore[arg-type]
+
+
+def test_scan_path_invalid_min_severity_raises():
+    """An unknown min_severity value must raise ValueError, not silently pass."""
+    with pytest.raises(ValueError, match="min_severity"):
+        scan_path(DEMO, min_severity="critical")
+
+
+def test_to_json_produces_valid_json():
+    """to_json must return a valid JSON string with expected schema keys."""
+    src = 'requests.get(user_input)\n'
+    findings = scan_source(src, "t.py")
+    result = to_json(findings, scanned="t.py")
+    data = json.loads(result)
+    assert "tool" in data
+    assert "summary" in data
+    assert "findings" in data
+    assert data["summary"]["total"] == len(findings)
+
+
+def test_scan_alias_matches_scan_path():
+    """scan() must return the same results as scan_path() for an existing file."""
+    via_alias = scan(DEMO)
+    via_scan_path = scan_path(DEMO)
+    assert [f.to_dict() for f in via_alias] == [f.to_dict() for f in via_scan_path]
+
+
+def test_cli_no_subcommand_returns_exit_two():
+    """Calling main() with no subcommand must print help and return 2."""
+    rc = main([])
+    assert rc == 2
