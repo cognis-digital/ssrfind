@@ -20,6 +20,62 @@ pip install cognis-ssrfind
 ssrfind scan .            # → prioritized findings in seconds
 ```
 
+
+<!-- cognis:example:start -->
+## 🔎 Example output
+
+Real, reproducible output from the tool — runs offline:
+
+```console
+$ ssrfind-emit --version
+ssrfind 0.1.0
+```
+
+```console
+$ ssrfind-emit --help
+usage: ssrfind [-h] [--version] {scan} ...
+
+Find SSRF-prone sinks and unvalidated URL fetches in source code (defensive
+static analysis).
+
+positional arguments:
+  {scan}
+    scan      Scan a file or directory tree for SSRF hotspots.
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+```
+
+> Blocks above are real `ssrfind` output — reproduce them from a clone.
+
+**Sample result format** _(illustrative values — run on your own data for real findings):_
+
+```
+{
+"Findings": [
+    {
+        "id": "1234567890",
+        "title": "Example Finding 1",
+        "description": "This is an example finding.",
+        "severity": "high",
+        "labels": ["malware", "ransomware"],
+        "created_at": "2023-02-15T14:30:00Z"
+    },
+    {
+        "id": "2345678901",
+        "title": "Example Finding 2",
+        "description": "This is another example finding.",
+        "severity": "medium",
+        "labels": ["phishing", "spear-phishing"],
+        "created_at": "2023-02-16T10:45:00Z"
+    }
+]
+}
+```
+
+<!-- cognis:example:end -->
+
 ## Usage — step by step
 
 1. **Install** the CLI (console script `ssrfind`):

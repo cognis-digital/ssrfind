@@ -1,0 +1,14 @@
+$ ssrfind-emit --help
+
+usage: ssrfind [-h] [--version] {scan} ...
+
+Find SSRF-prone sinks and unvalidated URL fetches in source code (defensive
+static analysis).
+
+positional arguments:
+  {scan}
+    scan      Scan a file or directory tree for SSRF hotspots.
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit

@@ -1,0 +1,3 @@
+$ ssrfind-emit --version
+
+ssrfind 0.1.0
